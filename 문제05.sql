@@ -69,16 +69,10 @@ SELECT
 FROM tblinsa
 	ORDER BY ssn;
 
+-- decode로 어떻게 풀지????
 
-
-
-
-
-
-
-
-
-
-
-
-
+SELECT
+	max(decode(substr(ssn, 8, 1), 1, substr(ssn, 1, 2))) AS 남자최고령,
+	min(decode(substr(ssn, 8, 1), 2, substr(ssn, 1, 2))) AS 여자최연소
+	
+FROM tblinsa;
