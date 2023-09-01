@@ -1,4 +1,5 @@
 --ex20_join.sql
+--0831
 
 /*
 
@@ -475,3 +476,339 @@ SELECT
 	item AS 물품명,
 	(SELECT name FROM tblcustomer WHERE seq = tblsales.cseq) AS 고객명
 FROM tblsales;
+
+
+
+
+-- 0901
+
+--비디오 + 장르 > 조인
+SELECT
+	v.name AS 비디오제목,
+	g.name AS 장르,
+	g.price AS 가격
+FROM tblgenre g
+	INNER JOIN tblvideo v
+		ON g.seq = v.genre;
+
+
+
+-- 비디오 + 장르 + 대여 > 조인
+SELECT
+	v.name AS 비디오제목,
+	g.name AS 장르,
+	g.price AS 가격,
+	r.MEMBER AS 회원,
+	r.rentdate AS 대여일,
+	r.retdate AS 반납일
+FROM tblgenre g
+	INNER JOIN tblvideo v
+		ON g.seq = v.genre
+			INNER JOIN tblrent r
+				ON v.seq = r.video;
+
+-- 비디오 + 장르 + 대여 + 회원 > 조인
+SELECT
+	m.name AS 회원,
+	v.name AS 비디오제목,
+	g.price AS 가격,
+	r.rentdate AS 대여일
+FROM tblgenre g
+	INNER JOIN tblvideo v
+		ON g.seq = v.genre
+			INNER JOIN tblrent r
+				ON v.seq = r.video
+					INNER JOIN tblmember m
+						ON r.MEMBER = m.seq;
+
+
+-- hr 샘플 데이터 조인
+SELECT
+	e.first_name || ' ' || e.last_name AS 직원명,
+	d.department_name AS 부서명,
+	l.city AS 도시명,
+	c.country_name AS 국가명,
+	r.region_name AS 대륙명,
+	j.job_title AS 직업
+FROM employees e
+	INNER JOIN departments d
+		ON e.department_id = d.department_id
+			INNER JOIN locations l
+				ON d.location_id = l.location_id
+				INNER JOIN countries c
+					ON l.country_id = c.country_id
+						INNER JOIN regions r
+							ON c.region_id = r.region_id
+	INNER JOIN jobs j
+		ON e.job_id = j.job_id;
+
+
+
+
+/*
+
+	3. 외부 조인, OUTER JOIN
+	- 내부조인의 반대되는 개념이 아님.
+	- 내부 조인 결과 + α 내부 조인에 포함되지 않았던 부모 테이블의 나머지 레코드를 합하는 조인 
+
+	이너조인
+	select
+		컬럼리스트
+	from 테이블A
+		inner join 테이블B
+			on 테이블A.컬럼 = 테이블B.컬럼;
+			
+	아우터조인
+	select
+		컬럼리스트
+	from 테이블A
+		(left|right) outer join 테이블B
+			on 테이블A.컬럼 = 테이블B.컬럼;		
+	
+*/
+
+SELECT * FROM tblcustomer; --3명
+
+SELECT * FROM tblsales; -- 9건 
+
+INSERT INTO tblcustomer VALUES (4, '호호호', '010-1234-1234', '서울시');
+INSERT INTO tblcustomer VALUES (5, '이순신', '010-1234-1234', '서울시');
+
+COMMIT;
+
+-- 내부 조인
+-- 업무 > 물건을 한번이라도 구매한 이력이 있는 고객의 정보와 그 고객이 사간 구매 내역을 가져오시오.
+SELECT 
+	*
+FROM tblcustomer c
+	INNER JOIN tblsales s
+		ON c.seq = s.cseq;
+--결과 9건
+	
+
+-- left 외부 조인
+SELECT
+	*
+FROM tblcustomer c
+	LEFT OUTER JOIN tblsales s
+		ON c.seq = s.cseq;
+--결과 11건
+
+
+-- right 외부 조인
+SELECT
+	*
+FROM tblcustomer c
+	RIGHT OUTER JOIN tblsales s
+		ON c.seq = s.cseq;
+--결과 9건
+-- 현재 상태에서는 내부 조인과 동일한 결과
+
+	
+--보편적인 테이블 구조에서 아우터 조인은 부모 테이블을 가리키도록 한다(여기선 left)	
+	
+	
+	
+SELECT * FROM tblstaff; -- 3건
+SELECT * FROM tblproject; -- 6건
+
+COMMIT;
+UPDATE tblproject SET staff_seq = 4 WHERE staff_seq = 3;
+
+-- inner join
+-- 프로젝트를 1건 이상 담당하고 있는 직원을 가져오시오.
+SELECT
+	*
+FROM tblstaff s
+	INNER JOIN tblproject p
+		ON s.seq = p.staff_seq;
+	
+-- outer join
+-- 담당 프로젝트의 유무와 관계없이 모든 직원을 가져오시오.
+SELECT
+	*
+FROM tblstaff s
+	LEFT OUTER JOIN tblproject p
+		ON s.seq = p.staff_seq;
+
+
+
+-- 대여가 한번이라도 발생한 비디오와 대여기록
+SELECT
+	*
+FROM tblvideo v
+	INNER JOIN tblrent r
+		ON v.seq = r.video;
+
+-- 한번도 대여되지 않은 비디오
+SELECT
+	*
+FROM tblvideo v
+	LEFT OUTER JOIN tblrent r
+		ON v.seq = r.video;
+		
+
+--대여를 최소 1회 이상 했던 회원과 대여기록
+SELECT
+	*
+FROM tblmember m
+	INNER JOIN tblrent r
+		ON m.seq = r.MEMBER;
+	
+-- 한번도 대여하지 않은 회원	
+SELECT
+	*
+FROM tblmember m
+	LEFT OUTER JOIN tblrent r
+		ON m.seq = r.MEMBER;
+		
+	
+-- 요구사항] 대여를 한번도 하지 않은 고객의 명단을 가져오시오.
+SELECT
+	*
+FROM tblmember m
+	LEFT OUTER JOIN tblrent r
+		ON m.seq = r.MEMBER
+			WHERE r.seq IS NULL;
+		
+--요구사항] 대여 기록이 있는 회원의 이름을 중복 없이 가져오시오.
+SELECT
+	DISTINCT m.name
+FROM tblmember m
+	INNER JOIN tblrent r
+		ON m.seq = r.MEMBER;
+		
+--요구사항] 대여 기록이 있는 회원의 이름 + 회원별 대여 횟수
+SELECT
+	m.name,
+	count(*)
+FROM tblmember m
+	INNER JOIN tblrent r
+		ON m.seq = r.MEMBER
+			GROUP BY m.name;
+		
+--요구사항] 대여 기록이 있는 회원의 이름 + 회원별 대여 횟수
+SELECT
+	m.name,
+	count(r.seq) AS 대여횟수 --count(*) > 대여기록이 NULL이어도 다른 컬럼이 있어서 카운트가 1이 됨
+FROM tblmember m
+	LEFT OUTER JOIN tblrent r
+		ON m.seq = r.MEMBER
+			GROUP BY m.name
+				ORDER BY count(r.seq) DESC;
+
+SELECT * FROM dual;		
+/*
+
+	4. 셀프 조인, SELF JOIN
+	(사용 빈도수 적음 > 복습 비중 낮게)
+	- 1개의 테이블을 사용하는 조인
+	- 테이블이 자기 스스로와 관계를 맺는 경우
+	
+	- 다중 조인(2개 이상의 테이블을 조인) + 내부 조인
+	- 다중 조인(2개 이상의 테이블을 조인) + 외부 조인
+	
+	- 셀프 조인(1개) + 내부 조인
+	- 셀프 조인(1개) + 외부 조인
+	
+*/
+
+--직원 테이블
+CREATE TABLE tblself
+(
+	seq NUMBER PRIMARY KEY,						--직원번호(PK)
+	name varchar2(30) NOT NULL,					--직원명
+	department varchar2(30) NOT NULL,			--부서명
+	super NUMBER NULL REFERENCES tblself(seq)	--직속상사의 직원번호(FK)
+);
+
+INSERT INTO tblself VALUES (1, '홍사장', '사장', null);
+INSERT INTO tblself VALUES (2, '김부장', '영업부', 1);
+INSERT INTO tblself VALUES (3, '박과장', '영업부', 2);
+INSERT INTO tblself VALUES (4, '최대리', '영업부', 3);
+INSERT INTO tblself VALUES (5, '정사원', '영업부', 4);
+INSERT INTO tblself VALUES (6, '이부장', '개발부', 1);
+INSERT INTO tblself VALUES (7, '하과장', '개발부', 6);
+INSERT INTO tblself VALUES (8, '신과장', '개발부', 6);
+INSERT INTO tblself VALUES (9, '황대리', '개발부', 7);
+INSERT INTO tblself VALUES (10, '허사원', '개발부', 9);
+
+--직원 명단을 가져오시오. 단, 상사의 이름까지
+-- 1. join
+-- 2. sub query
+-- 3. 계층형 쿼리 
+
+-- self inner join
+SELECT * FROM tblself;
+
+SELECT
+	b.name AS 직원명,
+	b.department AS 부서명,
+	a.name AS 상사명
+FROM tblself a				--a 역할 : 부모테이블 > 상사
+	INNER JOIN tblself b	--b 역할 : 자식테이블 > 직원
+		ON a.seq = b.super;
+
+
+-- self outer join
+-- 사장 > 상사 없음 자식 테이블에서 가져와야하므로 right outer join
+SELECT
+	b.name AS 직원명,
+	b.department AS 부서명,
+	a.name AS 상사명
+FROM tblself a					--a 역할 : 부모테이블 > 상사
+	RIGHT OUTER JOIN tblself b	--b 역할 : 자식테이블 > 직원
+		ON a.seq = b.super;
+
+
+-- sub query
+SELECT
+	name AS 직원명,
+	department AS 부서명,
+	(SELECT name FROM tblself WHERE seq = s.super) AS 상사명
+FROM tblself s ;
+
+
+/*
+	5. 전체 외부 조인, FULL OUTER JOIN
+	(셀프 조인보다 발생 빈도 낮음 > 복습 비중 낮게)
+	- 서로 참조하고 있는 관계에서 사용
+
+*/
+
+SELECT * FROM tblmen;	--부모 / 자식
+SELECT * FROM tblwomen;	--자식 / 부모
+
+--커플인 남자, 여자 가져오시오
+SELECT
+	m.name,
+	w.name
+FROM tblmen m
+	INNER JOIN tblwomen w
+		ON m.name = w.couple;
+	
+-- 남자 명단	
+SELECT
+	m.name,
+	w.name
+FROM tblmen m
+	LEFT OUTER JOIN tblwomen w
+		ON m.name = w.couple;
+		
+-- 여자 명단
+SELECT
+	m.name,
+	w.name
+FROM tblmen m
+	RIGHT OUTER JOIN tblwomen w
+		ON m.name = w.couple;
+		
+-- 전체 명단	
+SELECT
+	m.name,
+	w.name
+FROM tblmen m
+	FULL OUTER JOIN tblwomen w
+		ON m.name = w.couple;
+
+	
