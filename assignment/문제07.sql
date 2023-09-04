@@ -98,11 +98,35 @@ WHERE age > (SELECT avg(age) FROM tbladdressbook GROUP BY gender HAVING gender =
 					
 
 -- tblAddressBook. gmail.com을 사용하는 사람들의 성별 > 세대별(10,20,30,40대) 인원수를 가져오시오.
-
+SELECT
+	count(CASE
+		WHEN age BETWEEN 10 AND 19 THEN 1
+	END) AS "10대",
+	count(CASE
+		WHEN age BETWEEN 20 AND 29 THEN 1
+	END) AS "20대",
+	count(CASE
+		WHEN age BETWEEN 30 AND 39 THEN 1
+	END) AS "30대",
+	count(CASE
+		WHEN age BETWEEN 40 AND 49 THEN 1
+	END) AS "40대"
+FROM tbladdressbook
+	WHERE substr(email, instr(email, '@') + 1) =
+		(SELECT
+			substr(email, instr(email, '@') + 1)
+		FROM tbladdressbook
+			GROUP BY substr(email, instr(email, '@') + 1)
+				HAVING substr(email, instr(email, '@') + 1) = 'gmail.com');
 
 
 -- tblAddressBook. 가장 나이가 많으면서 가장 몸무게가 많이 나가는 사람과 같은 직업을 가지는 사람들을 가져오시오.
-
+SELECT *
+FROM tbladdressbook
+	WHERE job = (SELECT job
+				FROM tbladdressbook
+					WHERE age = (SELECT max(age) FROM tbladdressbook) AND
+							weight = (SELECT max(weight) FROM tbladdressbook));
 
 
 
