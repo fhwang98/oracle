@@ -85,7 +85,7 @@ FROM tbladdressbook
 			gender = 'f' AND
 			age BETWEEN 20 AND 29 AND
 			height BETWEEN 150 AND 159 AND
-			hometown IN ('서울', '부산');
+			hometown IN ('서울', '인천');
 
 
 
