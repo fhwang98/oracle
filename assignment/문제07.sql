@@ -131,13 +131,39 @@ FROM tbladdressbook
 
 
 -- tblAddressBook.  동명이인이 여러명 있습니다. 이 중 가장 인원수가 많은 동명이인(모든 이도윤)의 명단을 가져오시오.
-
+SELECT * FROM tbladdressbook
+WHERE name = (SELECT name
+				FROM tbladdressbook
+				GROUP BY name
+				HAVING count(*) = (SELECT max(count(*))
+									FROM tbladdressbook
+									GROUP BY name));
 
 
 -- tblAddressBook. 가장 사람이 많은 직업의(332명) 세대별 비율을 구하시오.
 --    [10대]       [20대]       [30대]       [40대]
 --    8.7%        30.7%        28.3%        32.2%
 
+SELECT
+	round(count(CASE
+			WHEN age BETWEEN 10 AND 19 THEN 1	
+	END) / count(*) * 100, 1) || '%' AS "10대",
+	round(count(CASE
+			WHEN age BETWEEN 20 AND 29 THEN 1	
+	END) / count(*) * 100, 1) || '%' AS "20대",
+	round(count(CASE
+			WHEN age BETWEEN 30 AND 39 THEN 1	
+	END) / count(*) * 100, 1) || '%' AS "30대",
+	round(count(CASE
+			WHEN age BETWEEN 40 AND 49 THEN 1	
+	END) / count(*) * 100, 1) || '%' AS "40대"
+FROM tbladdressbook
+	WHERE job = (SELECT job
+				FROM tbladdressbook
+					GROUP BY job
+						HAVING count(*) = (SELECT max(count(*))
+											FROM tbladdressbook
+												GROUP BY job));
 
 
 
