@@ -2,11 +2,20 @@
 
 --16. tblAddressBook. 남자 평균 나이보다 나이가 많은 서울 태생 + 직업을 가지고 있는 사람들을 가져오시오.
 
-
-
-
+SELECT *
+FROM tbladdressbook
+WHERE age > (SELECT avg(age)
+			FROM tbladdressbook
+				WHERE gender = 'm' AND hometown = '서울' AND job IS NOT NULL);
+			
 -- employees. 'Munich' 도시에 위치한 부서에 소속된 직원들 명단?
-
+SELECT *
+FROM employees e
+	INNER JOIN departments d
+		ON e.department_id = d.department_id
+			INNER JOIN locations l
+				ON d.location_id = l.location_id
+			WHERE l.city = 'Munich';
 
 -- tblMan. tblWoman. 서로 짝이 있는 사람 중 남자와 여자의 정보를 모두 가져오시오.
 --    [남자]        [남자키]   [남자몸무게]     [여자]    [여자키]   [여자몸무게]
@@ -14,16 +23,32 @@
 --    아무개         175       null            이세영     163        null
 --    ..
 
+SELECT
+	m.name AS 남자,
+	m.height AS 남자키,
+	m.weight AS 남자몸무게,
+	w.name AS 여자,
+	w.height AS 여자키,
+	w.weight AS 여자몸무게
+FROM tblmen m
+	INNER JOIN tblwomen w
+		ON m.name = w.couple;
     
     
 
 -- tblAddressBook. 가장 많은 사람들이 가지고 있는 직업은 주로 어느 지역 태생(hometown)인가?
+-- ??? ㅠㅠ
+
+(SELECT job, max(count(*)) FROM tbladdressbook GROUP BY job)
 
 
 
 
 -- tblAddressBook. 이메일 도메인들 중 평균 아이디 길이가 가장 긴 이메일 사이트의 도메인은 무엇인가?
-
+SELECT
+	substr(email, instr(address, '@') + 1)
+FROM tbladdressbook;
+	GROUP BY substr(email, instr(address, '@') + 1);
 
             
             
