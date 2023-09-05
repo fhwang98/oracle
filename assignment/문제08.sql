@@ -2,13 +2,41 @@
 
 
 -- 1. tblInsa. 남자 급여(기본급+수당)을 (내림차순)순위대로 가져오시오. (이름, 부서, 직위, 급여, 순위 출력)
-
+SELECT
+	a.*, rownum
+FROM (SELECT
+			name, buseo, jikwi, basicpay + sudang AS 급여
+		FROM tblinsa
+			WHERE substr(ssn, 8, 1) = 1
+				ORDER BY 급여 DESC) a;
 
 
 -- 2. tblInsa. 여자 급여(기본급+수당)을 (오름차순)순위대로 가져오시오. (이름, 부서, 직위, 급여, 순위 출력)
+SELECT
+	a.*, rownum
+FROM (SELECT
+			name, buseo, jikwi, basicpay + sudang AS 급여
+		FROM tblinsa
+			WHERE substr(ssn, 8, 1) = 2
+				ORDER BY 급여) a;
 
+			
+			
+			
 
 -- 3. tblInsa. 여자 인원수가 (가장 많은 부서 및 인원수) 가져오시오.
+SELECT
+	a.*, rownum
+FROM (SELECT
+		buseo, count(*)
+	FROM tblinsa
+		GROUP BY buseo, substr(ssn, 8, 1)
+			HAVING substr(ssn, 8, 1) = 2
+				ORDER BY count(*) DESC) a
+	WHERE rownum = 1;
+
+select * from (select buseo, count(*) as cnt from tblinsa where substr(ssn, 8, 1) = '2'
+	group by buseo order by count(*) desc) where rownum = 1;
 
 
 

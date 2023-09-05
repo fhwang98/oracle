@@ -181,31 +181,86 @@ FROM tbladdressbook
 
 
 -- tblStaff, tblProject. 현재 재직중인 모든 직원의 이름, 주소, 월급, 담당프로젝트명을 가져오시오.
-
+SELECT
+	s.name, s.address, s.salary, p.project
+FROM tblstaff s
+	LEFT OUTER JOIN tblproject p
+		ON s.seq = p.staff_seq;
        
        
 -- tblVideo, tblRent, tblMember. '뽀뽀할까요' 라는 비디오를 빌려간 회원의 이름은?
+SELECT
+	m.name
+FROM tblrent r
+	INNER JOIN tblvideo v
+		ON r.video = v.seq
+	INNER JOIN tblmember m
+		ON r.MEMBER = m.seq
+	WHERE v.name = '뽀뽀할까요';
 
-    
-    
+
+
 -- tblStaff, tblProejct. 'TV 광고'을 담당한 직원의 월급은 얼마인가?
 
-    
+SELECT
+	s.salary
+FROM tblstaff s
+	INNER JOIN tblproject p
+		ON s.seq = p.staff_seq
+			WHERE p.project = 'TV 광고';
+  
     
 -- tblVideo, tblRent, tblMember. '털미네이터' 비디오를 한번이라도 빌려갔던 회원들의 이름은?
-
+SELECT
+	m.name
+FROM tblrent r
+	INNER JOIN tblvideo v
+		ON r.video = v.seq
+	INNER JOIN tblmember m
+		ON r.MEMBER = m.seq
+	WHERE v.name = '털미네이터' AND r.rentdate IS NOT NULL;
+		
+		
                 
 -- tblStaff, tblProject. 서울시에 사는 직원을 제외한 나머지 직원들의 이름, 월급, 담당프로젝트명을 가져오시오.
+SELECT
+	s.name, s.salary, p.project
+FROM tblstaff s
+	LEFT OUTER JOIN tblproject p
+		ON s.seq = p.staff_seq
+			WHERE substr(s.address, 1, 2) <> '서울';
 
         
 -- tblCustomer, tblSales. 상품을 2개(단일상품) 이상 구매한 회원의 연락처, 이름, 구매상품명, 수량을 가져오시오.
 
+SELECT
+	c.tel, c.name, s.item, s.qty
+FROM tblcustomer c
+	INNER JOIN tblsales s
+		ON c.seq = s.cseq
+			WHERE s.qty >= 2;
+		
+		
                                 
 -- tblVideo, tblRent, tblGenre. 모든 비디오 제목, 보유수량, 대여가격을 가져오시오.
-          
-                
+
+SELECT
+	v.name, v.qty, g.price
+FROM tblvideo v
+	LEFT OUTER JOIN tblgenre g
+		ON v.genre = g.seq;
+
 -- tblVideo, tblRent, tblMember, tblGenre. 2007년 2월에 대여된 구매내역을 가져오시오. 회원명, 비디오명, 언제, 대여가격
 
+SELECT
+FROM tblrent r
+	INNER JOIN tblmember m
+		ON r.MEMBER = m.seq
+	INNER JOIN tblvideo v
+		ON r.video = v.seq
+	WHERE r.rentdate ;
+	
+	
         
 -- tblVideo, tblRent, tblMember. 현재 반납을 안한 회원명과 비디오명, 대여날짜를 가져오시오.
 
